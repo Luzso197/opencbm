@@ -1,5 +1,5 @@
 /*
- * Board interface routines for the Pro Micro
+ * Board interface routines for the Pro Micro (with 7406)
  * Copyright (c) 2015 Marko Solajic <msolajic@gmail.com>
  * Copyright (c) 2014 Thomas Kindler <mail_xum@t-kindler.de>
  * Copyright (c) 2009-2010 Nate Lawson <nate@root.org>
@@ -57,8 +57,15 @@ void
 board_init_iec(void)
 {
     // IO port initialization
-    IEC_DDR  = 0;
-    IEC_PORT = 0;
+
+    IEC_B_DDR  = IEC_B_MASK;
+    IEC_B_PORT = IEC_B_MASK;
+
+    IEC_C_DDR  = IEC_C_MASK;
+    IEC_C_PORT = IEC_C_MASK;
+
+    IEC_E_DDR  = IEC_E_MASK;
+    IEC_E_PORT = IEC_E_MASK;
 
   /* make port(s) input */
   PAR_PORT0_DDR &= ~PAR_PORT0_MASK;
@@ -72,7 +79,11 @@ board_init_iec(void)
 uint8_t
 iec_poll_pins(void)
 {
-    return IEC_PIN & (IO_DATA | IO_CLK | IO_ATN | IO_SRQ | IO_RESET);
+    return ((PIND & IO_SRQ_IN) << 1) |
+           ((PINB & IO_CLK_IN)  << 2) |
+           ((PINC & IO_DATA_IN) >> 4) |
+           ((PINE & IO_ATN_IN)  >> 2) |
+           ((PIND & IO_RESET_IN) >> 1);
 }
 
 static uint8_t statusValue;

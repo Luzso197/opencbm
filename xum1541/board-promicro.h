@@ -1,5 +1,5 @@
 /*
- * Board interface routines for the Pro Micro
+ * Board interface routines for the Pro Micro (with 7406)
  * Copyright (c) 2015 Marko Solajic <msolajic@gmail.com>
  * Copyright (c) 2014 Thomas Kindler <mail_xum@t-kindler.de>
  * Copyright (c) 2009-2010 Nate Lawson <nate@root.org>
@@ -19,15 +19,35 @@ void board_init_iec(void);
 
 // pinout is: PIN / PIN NAME ON BOARD
 
+// Mapping of IEC lines to IO port output signals.
 #define IO_DATA         _BV(2) // PB2 / 16
 #define IO_CLK          _BV(3) // PB3 / 14
 #define IO_ATN          _BV(4) // PB4 / 8
 #define IO_SRQ          _BV(5) // PB5 / 9
 #define IO_RESET        _BV(6) // PB6 / 10
 
-#define IEC_PORT		PORTB
-#define IEC_DDR			DDRB
-#define IEC_PIN			PINB
+// Input signals
+#define IO_CLK_IN       _BV(1) // PB1 / 15
+#define IO_DATA_IN      _BV(6) // PC6 / 5
+#define IO_SRQ_IN       _BV(4) // PD4 / 4
+#define IO_RESET_IN     _BV(7) // PD7 / 6
+#define IO_ATN_IN       _BV(6) // PE6 / 7
+
+#define IEC_B_MASK		0x7c   /* port B pins 2-6 as outputs */
+#define IEC_B_PORT		PORTB
+#define IEC_B_DDR		DDRB
+#define IEC_B_PIN		PINB
+
+#define IEC_C_MASK		0x00   /* port C all pins as inputs */
+#define IEC_C_PORT		PORTC
+#define IEC_C_DDR		DDRC
+#define IEC_C_PIN		PINC
+
+#define IEC_E_MASK		0x00   /* port E all pins as inputs */
+#define IEC_E_PORT		PORTE
+#define IEC_E_DDR		DDRE
+#define IEC_E_PIN		PINE
+
 
 #define LED_MASK        _BV(5) // PD5 / GREEN ONBOARD LED
 #define LED_PORT        PORTD
@@ -47,7 +67,7 @@ void board_init_iec(void);
 #define PAR_PORT1_PIN    PIND
 #define PAR_PORT1_PORT   PORTD
 
-#define SRQ_NIB_SUPPORT
+#define SRQ_NIB_SUPPORT  1
 
 /*
  * Use always_inline to override gcc's -Os option. Since we measured each
@@ -73,19 +93,42 @@ void board_init_iec(void);
 INLINE uint8_t
 iec_get(uint8_t line)
 {
-    return (IEC_PIN & line) == 0;
+    uint8_t ret;
+
+    switch (line) {
+    case IO_SRQ:
+        ret = PIND & IO_SRQ_IN;
+        break;
+    case IO_CLK:
+        ret = PINB & IO_CLK_IN;
+        break;
+    case IO_DATA:
+        ret = PINC & IO_DATA_IN;
+        break;
+    case IO_ATN:
+        ret = PINE & IO_ATN_IN;
+        break;
+    case IO_RESET:
+        ret = PIND & IO_RESET_IN;
+        break;
+    default:
+        // Invalid set of requested signals, trigger WD reset
+        for (;;) ;
+    }
+
+    return !ret;
 }
 
 INLINE void
 iec_set(uint8_t line)
 {
-    IEC_DDR |= line;
+    IEC_B_PORT |= line;
 }
 
 INLINE void
 iec_release(uint8_t line)
 {
-    IEC_DDR &= ~line;
+    IEC_B_PORT &= ~line;
 }
 
 INLINE void
