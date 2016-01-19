@@ -307,6 +307,43 @@ all the IEC lines can be soldered directly to the board:
     PD2        RXD1    UART for debug output
     PD3        TXD1    (optional, under #ifdef DEBUG)
 
+Arduino Leonardo model
+======================
+The Arduino Leonardo is a shield type development board with an ATMEGA32U4
+controller. It is available in various places. Compatible clones exist on
+ebay.com and other places.
+
+No additional components are required (unless you're building the 7406 version
+which is closer to the original ZoomFloppy design and supports SRQ nibbling)
+all the IEC lines can be connected directly to the board:
+
+    PF0 (A5)   DATA
+    PF1 (A4)   CLK
+    PF4 (A3)   ATN
+    PF5 (A2)   SRQ
+    PF6 (A1)   RESET
+
+  IN pins only for 7406 model
+    PD4 (4)    DATA IN
+    PD6 (12)   CLK IN
+    PD7 (6)    ATN IN
+    PC6 (5)    SRQ IN
+    PC7 (13)   RESET IN
+
+    PD0 (3)    DATA0 (optional parallel connection)
+    PD1 (2)    DATA1 (optional parallel connection)
+    PD2 (RXI)  DATA2 (optional parallel connection)
+    PD3 (TXO)  DATA3 (optional parallel connection)
+    PB4 (8)    DATA4 (optional parallel connection)
+    PB5 (9)    DATA5 (optional parallel connection)
+    PB6 (10)   DATA6 (optional parallel connection)
+    PB7 (11)   DATA7 (optional parallel connection)
+
+    PD5        LED     already on the board
+
+    PD2        RXD1    UART for debug output
+    PD3        TXD1    (optional, under #ifdef DEBUG)
+
 Other models
 ============
 I expect others will offer custom or prepackaged boards based on this
